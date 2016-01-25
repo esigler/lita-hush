@@ -1,0 +1,7 @@
+Documentation:
+  Exclude:
+    - lib/lita/handlers/hush.rb
+
+FileName:
+  Exclude:
+    - lib/lita-hush.rb
