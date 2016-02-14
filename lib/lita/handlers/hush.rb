@@ -13,7 +13,7 @@ module Lita
         :voice,
         command: true,
         help: {
-          t('help.add.syntax') => t('help.add.desc')
+          t('help.voice.syntax') => t('help.voice.desc')
         }
       )
 
@@ -49,26 +49,23 @@ module Lita
       def moderate(response)
         src = response.message.source
 
-        if response.match_data['toggle'] == 'on'
-          moderate_room(src.room)
-          give_voice(src.room, src.user)
-          action = 'moderated'
-        else
-          unmoderate_room(src.room)
-          action = 'unmoderated'
-        end
+        action = if response.match_data['toggle'] == 'on'
+                   moderate_room(src.room)
+                   give_voice(src.room, src.user)
+                   'moderated'
+                 else
+                   unmoderate_room(src.room)
+                   'unmoderated'
+                 end
 
         response.reply(t('moderation.complete', action: action))
       end
 
       def status(response)
-        msg = if room_moderated?(response.message.source.room)
-                t('status.moderated')
-              else
-                t('status.unmoderated')
-              end
+        src = response.message.source
+        state = room_moderated?(src.room) ? 'moderated' : 'unmoderated'
 
-        response.reply(msg)
+        response.reply(t('status.overview', state: state))
       end
 
       def voice(response)
@@ -109,10 +106,10 @@ module Lita
       def toggle_voice(room, user)
         if user_has_voice?(room, user)
           take_voice(room, user)
-          return false
+          false
         else
           give_voice(room, user)
-          return true
+          true
         end
       end
 

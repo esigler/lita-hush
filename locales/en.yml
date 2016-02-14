@@ -7,7 +7,7 @@ en:
         error:
           nouser: "That user was not found"
         help:
-          add:
+          voice:
             syntax: room (add|remove) @user
             desc: "Add or remove <user> to room's moderation list"
           moderate:
@@ -19,7 +19,6 @@ en:
         moderation:
           complete: Room now %{action}
         status:
-          moderated: Room is moderated
-          unmoderated: Room is unmoderated
+          overview: "Room is %{state}"
         voice:
           complete: "%{user} %{action} %{room} list"
