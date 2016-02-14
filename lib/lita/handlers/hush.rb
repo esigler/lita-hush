@@ -1,7 +1,7 @@
 module Lita
   module Handlers
     class Hush < Handler
-      # TODO: I don't like using catchall matchers.  Is there a cleaner way?
+      # NOTE: I don't like using catchall matchers.  Is there a cleaner way?
       route(
         /.*/,
         :ambient,
@@ -74,7 +74,7 @@ module Lita
         return if response.message.body == 'room status'
 
         response.reply_privately(t('ambient.pm', room: src.room_object.name))
-        # TODO: This is the nuclear option, I'd like to give a ramp up at least?
+        # NOTE: This is the nuclear option, I'd like to give a ramp up at least?
         # response.reply("/kick #{robot.mention_format(src.user)}")
       end
 
