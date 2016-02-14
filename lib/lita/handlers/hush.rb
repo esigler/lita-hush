@@ -100,11 +100,11 @@ module Lita
       # rubocop:enable AbcSize
 
       def status(response)
-        if room_moderated?(response.message.source.room)
-          msg = t('status.moderated')
-        else
-          msg = t('status.unmoderated')
-        end
+        msg = if room_moderated?(response.message.source.room)
+                t('status.moderated')
+              else
+                t('status.unmoderated')
+              end
 
         response.reply(msg)
       end
