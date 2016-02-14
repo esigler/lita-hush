@@ -7,7 +7,7 @@
 [![Code Climate](https://img.shields.io/codeclimate/github/esigler/lita-hush.svg)](https://codeclimate.com/github/esigler/lita-hush)
 [![Gemnasium](https://img.shields.io/gemnasium/esigler/lita-hush.svg)](https://gemnasium.com/esigler/lita-hush)
 
-A gentle way to restrict who can speak in certain rooms.
+A room moderation plugin for Lita.
 
 ## Installation
 
@@ -19,8 +19,37 @@ gem 'lita-hush'
 
 ## Configuration
 
-TODO: Describe any configuration attributes the plugin exposes.
+There are no Lita configuration file entries needed.
 
 ## Usage
 
-TODO: Describe the plugin's features and how to use them.
+### Example
+
+```
+@alice in quiet_room> Lita room add @alice
+@alice in quiet_room> Lita room moderation on
+@Lita in quiet_room> Room now moderated
+@alice in quiet_room> Peace and quiet!
+@bob in quiet_room> Hello world!
+@Lita PM to @bob> quiet_room is a moderated room
+```
+
+### Adding / Removing Someone
+
+```
+room add @user
+room remove @user
+```
+
+### Moderating / Unmoderating a Room
+
+```
+room moderation on # Automatically adds requestor to approved list
+room moderation off
+```
+
+### Status
+
+```
+room status
+```
