@@ -6,11 +6,11 @@ end
 
 describe Lita::Handlers::Hush, lita_handler: true do
   it { is_expected.to route('anything').to(:ambient) }
-  it { is_expected.to route_command('room add @foo').to(:add) }
-  it { is_expected.to route_command('room remove @foo').to(:remove) }
+  it { is_expected.to route_command('room add @foo').to(:voice) }
+  it { is_expected.to route_command('room remove @foo').to(:voice) }
   it { is_expected.to route_command('room status').to(:status) }
   it { is_expected.to route_command('room moderation on').to(:moderate) }
-  it { is_expected.to route_command('room moderation off').to(:unmoderate) }
+  it { is_expected.to route_command('room moderation off').to(:moderate) }
 
   let(:alice) do
     Lita::User.create(123, name: 'Alice', mention_name: 'alice')
@@ -36,7 +36,7 @@ describe Lita::Handlers::Hush, lita_handler: true do
     it 'adds a user to that rooms list' do
       Lita::User.create(456, name: 'Bob', mention_name: 'bob')
       send_command('room add bob', as: alice, from: quiet_room)
-      expect(replies.last).to eq('Bob added to quiet_room voice list')
+      expect(replies.last).to eq('Bob added to quiet_room list')
     end
   end
 
@@ -61,7 +61,7 @@ describe Lita::Handlers::Hush, lita_handler: true do
   describe '#remove' do
     it 'removes a user from that rooms list' do
       send_command('room remove alice', as: alice, from: quiet_room)
-      expect(replies.last).to eq('Alice removed from quiet_room voice list')
+      expect(replies.last).to eq('Alice removed from quiet_room list')
     end
   end
 

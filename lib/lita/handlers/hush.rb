@@ -9,8 +9,8 @@ module Lita
       )
 
       route(
-        /^room\sadd\s(?<user>.*)$/,
-        :add,
+        /^room\s(add|remove)\s(?<user>.*)$/,
+        :voice,
         command: true,
         help: {
           t('help.add.syntax') => t('help.add.desc')
@@ -18,20 +18,11 @@ module Lita
       )
 
       route(
-        /^room\smoderation\son$/,
+        /^room\smoderation\s(?<toggle>(on|off))$/,
         :moderate,
         command: true,
         help: {
           t('help.moderate.syntax') => t('help.moderate.desc')
-        }
-      )
-
-      route(
-        /^room\sremove\s(?<user>.*)$/,
-        :remove,
-        command: true,
-        help: {
-          t('help.remove.syntax') => t('help.remove.desc')
         }
       )
 
@@ -43,29 +34,6 @@ module Lita
           t('help.status.syntax') => t('help.status.desc')
         }
       )
-
-      route(
-        /room\smoderation\soff/,
-        :unmoderate,
-        command: true,
-        help: {
-          t('help.unmoderate.syntax') => t('help.unmoderate.desc')
-        }
-      )
-
-      # rubocop:disable AbcSize
-      def add(response)
-        src = response.message.source
-        return if src.room.nil?
-        room_id = src.room
-        room_name = src.room_object.name
-        user = Lita::User.fuzzy_find(response.match_data['user'])
-        return response.reply(t('error.nouser')) if user.nil?
-        give_voice(room_id, user)
-
-        response.reply(t('add.complete', user: user.name, room: room_name))
-      end
-      # rubocop:enable AbcSize
 
       def ambient(response)
         src = response.message.source
@@ -80,24 +48,18 @@ module Lita
 
       def moderate(response)
         src = response.message.source
-        moderate_room(src.room)
-        give_voice(src.room, src.user)
-        response.reply(t('moderate.complete'))
-      end
 
-      # rubocop:disable AbcSize
-      def remove(response)
-        src = response.message.source
-        return if src.room.nil?
-        room_id = src.room
-        room_name = src.room_object.name
-        user = Lita::User.fuzzy_find(response.match_data['user'])
-        return response.reply(t('error.nouser')) if user.nil?
-        take_voice(room_id, user)
+        if response.match_data['toggle'] == 'on'
+          moderate_room(src.room)
+          give_voice(src.room, src.user)
+          action = 'moderated'
+        else
+          unmoderate_room(src.room)
+          action = 'unmoderated'
+        end
 
-        response.reply(t('remove.complete', user: user.name, room: room_name))
+        response.reply(t('moderation.complete', action: action))
       end
-      # rubocop:enable AbcSize
 
       def status(response)
         msg = if room_moderated?(response.message.source.room)
@@ -109,9 +71,17 @@ module Lita
         response.reply(msg)
       end
 
-      def unmoderate(response)
-        unmoderate_room(response.message.source.room)
-        response.reply(t('unmoderate.complete'))
+      def voice(response)
+        src = response.message.source
+        user = Lita::User.fuzzy_find(response.match_data['user'])
+        return response.reply(t('error.nouser')) unless user
+
+        action = toggle_voice(src.room, user) ? 'added to' : 'removed from'
+
+        response.reply(t('voice.complete',
+                         user: user.name,
+                         room: src.room_object.name,
+                         action: action))
       end
 
       private
@@ -136,6 +106,16 @@ module Lita
         redis.srem("voice_list_#{room}", user.id)
       end
 
+      def toggle_voice(room, user)
+        if user_has_voice?(room, user)
+          take_voice(room, user)
+          return false
+        else
+          give_voice(room, user)
+          return true
+        end
+      end
+
       def unmoderate_room(room)
         return if room.nil?
         redis.srem('moderated_rooms', room)
@@ -143,7 +123,7 @@ module Lita
 
       def user_has_voice?(room, user)
         return false if room.nil? || user.nil?
-        redis.sismember("voice_list_#{room}", user.id.to_s)
+        redis.sismember("voice_list_#{room}", user.id)
       end
 
       Lita.register_handler(self)

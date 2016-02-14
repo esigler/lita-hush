@@ -2,34 +2,24 @@ en:
   lita:
     handlers:
       hush:
-        add:
-          complete: "%{user} added to %{room} voice list"
         ambient:
           pm: "%{room} is a moderated room"
         error:
           nouser: "That user was not found"
         help:
           add:
-            syntax: room add @user
-            desc: "Add <user> to room's moderation list"
+            syntax: room (add|remove) @user
+            desc: "Add or remove <user> to room's moderation list"
           moderate:
-            syntax: room moderate
-            desc: Room participants will be privately messaged if they are not on the moderation approved list
-          remove:
-            syntax: room remove @user
-            desc: "Rmove <user> from room's moderation list"
+            syntax: room moderation (on|off)
+            desc: Room participants not on the moderation list will be privately messaged
           status:
             syntax: room status
             desc: Shows current moderation status
-          unmoderate:
-            syntax: room unmoderate
-            desc: Anyone can speak in the room without getting a private message
-        moderate:
-          complete: Room now moderated
-        remove:
-          complete: "%{user} removed from %{room} voice list"
+        moderation:
+          complete: Room now %{action}
         status:
           moderated: Room is moderated
           unmoderated: Room is unmoderated
-        unmoderate:
-          complete: Room now unmoderated
+        voice:
+          complete: "%{user} %{action} %{room} list"
